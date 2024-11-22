@@ -1,34 +1,39 @@
 {
-	"name": "pro-api-sdk",
-	"uuid": "",
-	"displayName": "PRO API SDK",
-	"description": "嘉立创EDA & EasyEDA 专业版扩展 API 开发工具",
+	"name": "light",
+	"uuid": "c3137d8b794a4dbca6bb7bf96dc69260",
+	"displayName": "LED助手",
+	"description": "LED助手",
 	"version": "1.0.0",
-	"publisher": "JLCEDA <support@lceda.cn>",
 	"engines": {
-		"eda": "^2.2.32"
+		"publisher": "Mr_Fang <klxf@vip.qq.com>",
+		"eda": "^2.2.33"
 	},
-	"license": "MIT License",
+	"license": "Apache-2.0",
 	"repository": {
 		"type": "extension-store",
 		"url": ""
 	},
 	"categories": "Other",
-	"keywords": ["SDK"],
+	"keywords": [],
 	"images": {
 		"logo": "./images/logo.png"
 	},
-	"homepage": "https://pro.lceda.cn",
-	"bugs": "https://lceda.cn/page/feedback?originPage=other",
+	"homepage": "https://github.com/klxf/eext-light",
+	"bugs": "https://github.com/klxf/eext-light/issues",
 	"activationEvents": {},
 	"entry": "./dist/index",
 	"dependentExtensions": {},
 	"headerMenus": {
 		"home": [
 			{
-				"id": "API SDK",
-				"title": "API SDK",
+				"id": "light-home",
+				"title": "LED助手",
 				"menuItems": [
+					{
+						"id": "iframe",
+						"title": "LED助手",
+						"registerFn": "openIframe"
+					},
 					{
 						"id": "About",
 						"title": "关于...",
@@ -39,9 +44,14 @@
 		],
 		"sch": [
 			{
-				"id": "API SDK",
-				"title": "API SDK",
+				"id": "light-sch",
+				"title": "LED助手",
 				"menuItems": [
+					{
+						"id": "iframe",
+						"title": "LED助手",
+						"registerFn": "openIframe"
+					},
 					{
 						"id": "About",
 						"title": "关于...",
@@ -52,9 +62,14 @@
 		],
 		"pcb": [
 			{
-				"id": "API SDK",
-				"title": "API SDK",
+				"id": "light-pcb",
+				"title": "LED助手",
 				"menuItems": [
+					{
+						"id": "iframe",
+						"title": "LED助手",
+						"registerFn": "openIframe"
+					},
 					{
 						"id": "About",
 						"title": "关于...",

@@ -16,8 +16,17 @@ import * as extensionConfig from '../extension.json';
 export function activate(status?: 'onStartupFinished', arg?: string): void {}
 
 export function about(): void {
-	eda.sys_MessageBox.showInformationMessage(
-		eda.sys_I18n.text('EasyEDA extension SDK v', undefined, undefined, extensionConfig.version),
-		eda.sys_I18n.text('About'),
-	);
+	eda.sys_MessageBox.showInformationMessage(extensionConfig.name + ' ' + extensionConfig.version + '\n' + extensionConfig.description, '关于');
+}
+
+export function openIframe(): void {
+	if (eda.sys_Environment.isWeb() || !eda.sys_Environment.isJLCEDAProEdition()) {
+		eda.sys_ToastMessage.showMessage('本拓展仅支持嘉立创 EDA 专业版客户端', ESYS_ToastMessageType.WARNING);
+		return;
+	}
+	if (eda.sys_Environment.isOfflineMode() || eda.sys_Environment.isProPrivateEdition()) {
+		eda.sys_ToastMessage.showMessage('本拓展不支持离线模式或私有部署版本', ESYS_ToastMessageType.WARNING);
+		return;
+	}
+	eda.sys_IFrame.openIFrame('/iframe/index.html', 500, 300);
 }
