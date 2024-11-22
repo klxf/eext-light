@@ -28,6 +28,8 @@
 > [!IMPORTANT]
 >
 > LED 的实际色彩受其实际电流、环境光影响，本拓展所展示的色彩仅为理论数值
+> 
+> 理论基础：https://fang.blog.miri.site/archives/1014/
 
 ## 开源许可
 
