@@ -360,7 +360,7 @@
 						const list = data.result.lists.lcsc;
 						const tableBody = document.getElementById('lcsz-table-body');
 						tableBody.innerHTML = '';
-						list.forEach((item, index) => {
+						list.forEach((item) => {
 							if (item.tags.child_tag.uuid === '957b3170ddc9408795c58c7566892d5b') {
 								const row = document.createElement('tr');
 								row.innerHTML = `
@@ -843,17 +843,13 @@
 				x.forEach((value) => {
 					P.push(c * math.exp(-math.pow(value - wavelength, 2) / (2 * math.pow(sigma, 2))));
 				});
-				let minWavelength = math.round(wavelength - FWHM / 2);
-				let maxWavelength = math.round(wavelength + FWHM / 2);
-
-				let Pm = P.slice(minWavelength - 380, maxWavelength - 380);
-				let Tm = [];
-				tristimulus.slice(minWavelength - 380, maxWavelength - 380).forEach((value) => {
-					Tm.push(value.slice(1));
+				let T = [];
+				tristimulus.forEach((value) => {
+					T.push(value.slice(1));
 				});
 				let XYZ = [];
-				Tm.forEach((value, index) => {
-					XYZ.push(math.multiply(value, Pm[index]));
+				T.forEach((value, index) => {
+					XYZ.push(math.multiply(value, P[index]));
 				});
 				let XYZSum = math.sum(XYZ, 0);
 				let XYZMax = math.max(...XYZSum);
