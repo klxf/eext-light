@@ -4,131 +4,10 @@
 		<title>LED助手</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<script src="https://unpkg.com/mathjs@14.0.0/lib/browser/math.js"></script>
-		<style>
-			* {
-				margin: 0;
-			}
-
-			#spectrum {
-				position: relative;
-			}
-			.spectrum-dot {
-				width: 12px;
-				height: 12px;
-				border: 2px solid white;
-				border-radius: 50%;
-				position: absolute;
-				bottom: 26%;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				transform: translate(-50%, -50%);
-			}
-
-			.spectrum-dot::before {
-				content: '';
-				width: 4px;
-				height: 4px;
-				background-color: white;
-				border-radius: 50%;
-			}
-
-			.spectrum-tip {
-				visibility: hidden;
-				min-width: 100px;
-				max-width: 200px;
-				background-color: black;
-				color: #fff;
-				text-align: center;
-				border-radius: 6px;
-				padding: 5px 10px;
-				position: absolute;
-				z-index: 1;
-				bottom: 125%; /* Position the tooltip above the dot */
-				opacity: 0;
-				transition: opacity 0.3s;
-			}
-			.spectrum-dot:hover .spectrum-tip {
-				visibility: visible;
-				opacity: 1;
-			}
-			#rgb-block {
-				height: 20px;
-				background: black;
-			}
-			/* 输入框样式 */
-			input[type='number'],
-			input[type='text'] {
-				width: 100px;
-				padding: 5px;
-				margin: 5px 0;
-				box-sizing: border-box;
-				border: 2px solid #ccc;
-				border-radius: 4px;
-				font-size: 16px;
-				transition: border-color 0.3s;
-			}
-
-			input[type='number']:focus,
-			input[type='text']:focus {
-				border-color: #66afe9;
-				outline: none;
-			}
-
-			/* 按钮样式 */
-			button {
-				background-color: #4caf50;
-				color: white;
-				padding: 10px 20px;
-				margin: 10px 0;
-				border: none;
-				border-radius: 4px;
-				cursor: pointer;
-				font-size: 16px;
-				transition: background-color 0.3s;
-			}
-
-			button:hover {
-				background-color: #45a049;
-			}
-			/* 表格样式 */
-			.lcsz-table {
-				overflow-x: auto;
-			}
-			table {
-				width: 100%;
-				border-collapse: collapse;
-			}
-
-			table th,
-			table td {
-				padding: 5px;
-				border: 1px solid #ddd;
-			}
-
-			table th {
-				background-color: #f2f2f2;
-				color: #333;
-			}
-
-			table tr:nth-child(even) {
-				background-color: #f9f9f9;
-			}
-
-			table tr:hover {
-				background-color: #f1f1f1;
-			}
-
-			::-webkit-scrollbar {
-				height: 0.25rem;
-				width: 0.25rem;
-			}
-
-			::-webkit-scrollbar-thumb {
-				background: rgba(0, 0, 0, 0.2);
-			}
-		</style>
+		<script src="/iframe/js/mathjs@14.0.0.js"></script>
+		<script src="/iframe/js/tristimulus.js"></script>
+		<script src="/iframe/js/main.js"></script>
+		<link rel="stylesheet" href="/iframe/css/style.css" />
 	</head>
 	<body>
 		<!--<form id="add-dot-form">
@@ -151,8 +30,6 @@
 			<p>
 				<label for="cid">编号：</label>
 				<input type="text" id="cid" name="cid" required />
-			</p>
-			<p>
 				<button type="submit">新增</button>
 			</p>
 		</form>
@@ -307,7 +184,18 @@
 
 		<div id="added-dots-list">
 			<h3>列表</h3>
-			<ul id="dots-list"></ul>
+			<div class="table">
+				<table>
+					<thead>
+						<tr>
+							<th>编号</th>
+							<th>主波长</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="dots-list"></tbody>
+				</table>
+			</div>
 		</div>
 
 		<form id="search-lcsc">
@@ -315,12 +203,10 @@
 			<p>
 				<label for="nameLcsc">关键词：</label>
 				<input type="text" id="nameLcsc" name="nameLcsc" required />
-			</p>
-			<p>
 				<button type="submit">搜索</button>
 			</p>
 		</form>
-		<div class="lcsz-table">
+		<div class="table">
 			<table>
 				<thead>
 					<tr>
@@ -340,7 +226,22 @@
 			document.getElementById('search-lcsc').addEventListener('submit', function (e) {
 				e.preventDefault();
 				const name = document.getElementById('nameLcsc').value;
-				fetch('https://client/api/devices/search', {
+				const host = 'https://' + (eda.sys_Environment.isWeb() ? 'pro.lceda.cn' : 'client');
+				/*
+				暂时不用这个，不好用
+				const deviceClass = {
+					libraryType: ELIB_LibraryType.DEVICE,
+					libraryUuid: "0819f05c4eef4c71ace90d822a990e87",
+					primaryClassificationUuid: "bae614e9ad4a498eba84274344997496",
+					secondaryClassificationUuid: "aa409d1be9af4624b0d16ff3a0267611"
+				};
+				eda.lib_Device.search(name, "0819f05c4eef4c71ace90d822a990e87", deviceClass).then((data) => {
+					console.log(data);
+				}) */
+
+				eda.sys_ToastMessage.showMessage('正在搜索，耗时可能较久...', 'info', 5);
+
+				fetch(host + '/api/devices/search', {
 					'headers': {
 						'accept': 'application/json, text/javascript, */*; q=0.01',
 						'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -350,7 +251,7 @@
 					},
 					'referrer': 'https://client/editor',
 					'referrerPolicy': 'strict-origin-when-cross-origin',
-					'body': `uid=0819f05c4eef4c71ace90d822a990e87&pageSize=100&page=1&wd=${name}&withSymbolPackage=on&path=0819f05c4eef4c71ace90d822a990e87`,
+					'body': `uid=0819f05c4eef4c71ace90d822a990e87&pageSize=500&page=1&wd=${name}&withSymbolPackage=on&path=0819f05c4eef4c71ace90d822a990e87`,
 					'method': 'POST',
 					'mode': 'cors',
 					'credentials': 'omit',
@@ -368,413 +269,43 @@
         				<td>${item.attributes['Manufacturer Part']}</td>
         				<td>${item.attributes['Supplier Footprint']}</td>
         				<td>${item.attributes['Emitted Color']}</td>
-        				<td>${item.attributes['Dominant Wavelength']}</td>
+        				<td>${item.attributes['Dominant Wavelength'] ? item.attributes['Dominant Wavelength'] : '-'}</td>
       				`;
 								row.addEventListener('dblclick', function () {
-									const matches = item.attributes['Dominant Wavelength'].match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/);
-									const minWavelength = parseInt(matches[1]);
-									const maxWavelength = parseInt(matches[2]);
+									// 如果能被match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/)匹配到，则说明是各范围，用于自动填充
+									let minWavelength, maxWavelength;
+									const dominantWavelength = item.attributes['Dominant Wavelength'];
+									if (dominantWavelength && dominantWavelength.match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/)) {
+										let matches = dominantWavelength.match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/);
+										minWavelength = parseInt(matches[1]);
+										maxWavelength = parseInt(matches[2]);
+									} else if (dominantWavelength && dominantWavelength.match(/(\d+\.?\d+)nm/)) {
+										let matches = dominantWavelength.match(/(\d+\.?\d+)nm/);
+										minWavelength = parseInt(matches[1]);
+										maxWavelength = parseInt(matches[1]);
+									} else {
+										eda.sys_ToastMessage.showMessage('无法识别的波长', 'error', 5);
+										return;
+									}
+
 									const cid = item.attributes['Supplier Part'];
 									document.getElementById('minWavelength').value = minWavelength;
 									document.getElementById('maxWavelength').value = maxWavelength;
 									document.getElementById('cid').value = cid;
+
+									eda.sys_ToastMessage.showMessage('已自动填充', 'success', 5);
 								});
 								tableBody.appendChild(row);
 							}
 						});
+					})
+					.then(() => {
+						// html 里用不了枚举常量
+						eda.sys_ToastMessage.showMessage('搜索完成，双击搜索结果自动填充', 'success', 5);
 					});
 			});
 		</script>
 		<script>
-			const tristimulus = [
-				[380, 0.001368, 0.000039, 0.00645],
-				[381, 0.001502, 0.000043, 0.007083],
-				[382, 0.001642, 0.000047, 0.007745],
-				[383, 0.001802, 0.000052, 0.008501],
-				[384, 0.001996, 0.000057, 0.009415],
-				[385, 0.002236, 0.000064, 0.01055],
-				[386, 0.002535, 0.000072, 0.011966],
-				[387, 0.002893, 0.000082, 0.013656],
-				[388, 0.003301, 0.000094, 0.015588],
-				[389, 0.003753, 0.000106, 0.01773],
-				[390, 0.004243, 0.00012, 0.02005],
-				[391, 0.004762, 0.000135, 0.022511],
-				[392, 0.00533, 0.000151, 0.025203],
-				[393, 0.005979, 0.00017, 0.02828],
-				[394, 0.006741, 0.000192, 0.031897],
-				[395, 0.00765, 0.000217, 0.03621],
-				[396, 0.008751, 0.000247, 0.041438],
-				[397, 0.010029, 0.000281, 0.047504],
-				[398, 0.011422, 0.000319, 0.05412],
-				[399, 0.012869, 0.000357, 0.060998],
-				[400, 0.01431, 0.000396, 0.06785],
-				[401, 0.015704, 0.000434, 0.074486],
-				[402, 0.017147, 0.000473, 0.081362],
-				[403, 0.018781, 0.000518, 0.089154],
-				[404, 0.020748, 0.000572, 0.09854],
-				[405, 0.02319, 0.00064, 0.1102],
-				[406, 0.026207, 0.000725, 0.124613],
-				[407, 0.029782, 0.000826, 0.141702],
-				[408, 0.033881, 0.000941, 0.161304],
-				[409, 0.038468, 0.00107, 0.183257],
-				[410, 0.04351, 0.00121, 0.2074],
-				[411, 0.048996, 0.001362, 0.233692],
-				[412, 0.055023, 0.001531, 0.262611],
-				[413, 0.061719, 0.00172, 0.294775],
-				[414, 0.069212, 0.001935, 0.330799],
-				[415, 0.07763, 0.00218, 0.3713],
-				[416, 0.086958, 0.002455, 0.416209],
-				[417, 0.097177, 0.002764, 0.465464],
-				[418, 0.108406, 0.003118, 0.519695],
-				[419, 0.120767, 0.003526, 0.57953],
-				[420, 0.13438, 0.004, 0.6456],
-				[421, 0.149358, 0.004546, 0.718484],
-				[422, 0.165396, 0.005159, 0.796713],
-				[423, 0.181983, 0.005829, 0.877846],
-				[424, 0.198611, 0.006546, 0.959439],
-				[425, 0.21477, 0.0073, 1.03905],
-				[426, 0.231868, 0.008087, 1.115367],
-				[427, 0.24488, 0.008909, 1.188497],
-				[428, 0.258777, 0.009768, 1.258123],
-				[429, 0.271808, 0.010664, 1.32393],
-				[430, 0.2839, 0.0116, 1.3856],
-				[431, 0.294947, 0.012573, 1.442635],
-				[432, 0.304897, 0.013583, 1.494804],
-				[433, 0.313787, 0.01463, 1.54219],
-				[434, 0.321645, 0.015715, 1.584881],
-				[435, 0.3285, 0.01684, 1.62296],
-				[436, 0.334351, 0.018007, 1.656405],
-				[437, 0.33921, 0.019214, 1.685296],
-				[438, 0.343121, 0.020454, 1.709875],
-				[439, 0.34613, 0.021718, 1.730382],
-				[440, 0.34828, 0.023, 1.74706],
-				[441, 0.3496, 0.024295, 1.760045],
-				[442, 0.350147, 0.02561, 1.769623],
-				[443, 0.350013, 0.026959, 1.776264],
-				[444, 0.349287, 0.028351, 1.780433],
-				[445, 0.34806, 0.0298, 1.7826],
-				[446, 0.346373, 0.031311, 1.782968],
-				[447, 0.344262, 0.032884, 1.7817],
-				[448, 0.341809, 0.034521, 1.779198],
-				[449, 0.339094, 0.036226, 1.775867],
-				[450, 0.3362, 0.038, 1.77211],
-				[451, 0.333198, 0.039847, 1.768259],
-				[452, 0.330041, 0.041768, 1.764039],
-				[453, 0.326636, 0.043766, 1.758944],
-				[454, 0.322887, 0.045843, 1.752466],
-				[455, 0.3187, 0.048, 1.7441],
-				[456, 0.314025, 0.050244, 1.73356],
-				[457, 0.308884, 0.052573, 1.720858],
-				[458, 0.30329, 0.054981, 1.705937],
-				[459, 0.297258, 0.057459, 1.688737],
-				[460, 0.2903, 0.06, 1.6692],
-				[461, 0.28397, 0.062602, 1.647529],
-				[462, 0.276721, 0.065278, 1.623413],
-				[463, 0.268918, 0.068042, 1.596022],
-				[464, 0.260423, 0.070911, 1.564528],
-				[465, 0.251, 0.0739, 1.5281],
-				[466, 0.240848, 0.077016, 1.486111],
-				[467, 0.229851, 0.080266, 1.439522],
-				[468, 0.218407, 0.083667, 1.38988],
-				[469, 0.206812, 0.087233, 1.338736],
-				[470, 0.19536, 0.09098, 1.28764],
-				[471, 0.184214, 0.094918, 1.237422],
-				[472, 0.173327, 0.099046, 1.187824],
-				[473, 0.162688, 0.103367, 1.138761],
-				[474, 0.152283, 0.108846, 1.090148],
-				[475, 0.1421, 0.1126, 1.0419],
-				[476, 0.132179, 0.117532, 0.994198],
-				[477, 0.12257, 0.122674, 0.947347],
-				[478, 0.113275, 0.127993, 0.901453],
-				[479, 0.104298, 0.133453, 0.856619],
-				[480, 0.09564, 0.13902, 0.81295],
-				[481, 0.0873, 0.144676, 0.770517],
-				[482, 0.079208, 0.150469, 0.729445],
-				[483, 0.071718, 0.156462, 0.689914],
-				[484, 0.064581, 0.162718, 0.652105],
-				[485, 0.05795, 0.1693, 0.6162],
-				[486, 0.051862, 0.176243, 0.582329],
-				[487, 0.046282, 0.183558, 0.550416],
-				[488, 0.041151, 0.191274, 0.520338],
-				[489, 0.036413, 0.199418, 0.491967],
-				[490, 0.03201, 0.20802, 0.46518],
-				[491, 0.027917, 0.21712, 0.439925],
-				[492, 0.024144, 0.226735, 0.416184],
-				[493, 0.020687, 0.236857, 0.393882],
-				[494, 0.01754, 0.247481, 0.372946],
-				[495, 0.0147, 0.2586, 0.3533],
-				[496, 0.012162, 0.270185, 0.334858],
-				[497, 0.00992, 0.282294, 0.317552],
-				[498, 0.007967, 0.295051, 0.301338],
-				[499, 0.006296, 0.308578, 0.286169],
-				[500, 0.0049, 0.323, 0.272],
-				[501, 0.003777, 0.338402, 0.258817],
-				[502, 0.002945, 0.354686, 0.246484],
-				[503, 0.002425, 0.371699, 0.234772],
-				[504, 0.002236, 0.389288, 0.223453],
-				[505, 0.0024, 0.4073, 0.2123],
-				[506, 0.002926, 0.42563, 0.201169],
-				[507, 0.003837, 0.444309, 0.19012],
-				[508, 0.005175, 0.463394, 0.179225],
-				[509, 0.006982, 0.48294, 0.168561],
-				[510, 0.0093, 0.503, 0.1582],
-				[511, 0.012149, 0.523569, 0.148138],
-				[512, 0.015536, 0.544512, 0.138376],
-				[513, 0.019478, 0.56569, 0.128994],
-				[514, 0.023993, 0.586965, 0.120075],
-				[515, 0.0291, 0.6082, 0.1117],
-				[516, 0.034815, 0.629346, 0.103905],
-				[517, 0.04112, 0.650307, 0.096667],
-				[518, 0.047985, 0.670875, 0.089983],
-				[519, 0.055379, 0.690842, 0.083845],
-				[520, 0.06327, 0.71, 0.07825],
-				[521, 0.071635, 0.728185, 0.073209],
-				[522, 0.080462, 0.745464, 0.068678],
-				[523, 0.08974, 0.761969, 0.064568],
-				[524, 0.099456, 0.777837, 0.060788],
-				[525, 0.1096, 0.7932, 0.05725],
-				[526, 0.120167, 0.80811, 0.053904],
-				[527, 0.131115, 0.822496, 0.050747],
-				[528, 0.142368, 0.836307, 0.047753],
-				[529, 0.153854, 0.849492, 0.044899],
-				[530, 0.1655, 0.862, 0.04216],
-				[531, 0.177257, 0.873711, 0.039507],
-				[532, 0.18914, 0.884962, 0.036936],
-				[533, 0.201169, 0.895494, 0.034458],
-				[534, 0.213366, 0.905443, 0.032089],
-				[535, 0.22575, 0.91485, 0.02984],
-				[536, 0.238321, 0.923735, 0.027712],
-				[537, 0.251067, 0.932092, 0.025694],
-				[538, 0.263992, 0.939923, 0.023787],
-				[539, 0.277102, 0.947225, 0.021989],
-				[540, 0.2904, 0.954, 0.0203],
-				[541, 0.303891, 0.960256, 0.018718],
-				[542, 0.317573, 0.966007, 0.01724],
-				[543, 0.331438, 0.971261, 0.015864],
-				[544, 0.345483, 0.976002, 0.014585],
-				[545, 0.3597, 0.9803, 0.0134],
-				[546, 0.374084, 0.984092, 0.012307],
-				[547, 0.38864, 0.987418, 0.011302],
-				[548, 0.403378, 0.990313, 0.010378],
-				[549, 0.418312, 0.992812, 0.009529],
-				[550, 0.43345, 0.99495, 0.00875],
-				[551, 0.448795, 0.996711, 0.008035],
-				[552, 0.464336, 0.998098, 0.007382],
-				[553, 0.480064, 0.999112, 0.006785],
-				[554, 0.495971, 0.999748, 0.006243],
-				[555, 0.51205, 1.0, 0.00575],
-				[556, 0.528296, 0.999857, 0.005304],
-				[557, 0.544692, 0.999305, 0.0049],
-				[558, 0.561209, 0.998326, 0.004534],
-				[559, 0.577822, 0.996899, 0.004202],
-				[560, 0.5945, 0.995, 0.0039],
-				[561, 0.611221, 0.992601, 0.003632],
-				[562, 0.627976, 0.989743, 0.003141],
-				[563, 0.64476, 0.986444, 0.002935],
-				[564, 0.66157, 0.982724, 0.002935],
-				[565, 0.6784, 0.9876, 0.00275],
-				[566, 0.695329, 0.974084, 0.002585],
-				[567, 0.712059, 0.969171, 0.002439],
-				[568, 0.728828, 0.963857, 0.002309],
-				[569, 0.745519, 0.958135, 0.002197],
-				[570, 0.7621, 0.952, 0.0021],
-				[571, 0.778543, 0.94545, 0.002018],
-				[572, 0.794856, 0.938499, 0.001948],
-				[573, 0.810926, 0.931163, 0.00189],
-				[574, 0.826825, 0.923458, 0.001841],
-				[575, 0.8425, 0.9154, 0.0018],
-				[576, 0.857933, 0.907006, 0.001766],
-				[577, 0.873082, 0.898277, 0.001738],
-				[578, 0.887894, 0.889205, 0.001711],
-				[579, 0.902318, 0.879782, 0.001683],
-				[580, 0.9163, 0.87, 0.00165],
-				[581, 0.9298, 0.859861, 0.00161],
-				[582, 0.942789, 0.849392, 0.001564],
-				[583, 0.955278, 0.838622, 0.001514],
-				[584, 0.967218, 0.827581, 0.001459],
-				[585, 0.9786, 0.8163, 0.0014],
-				[586, 0.989386, 0.804795, 0.001337],
-				[587, 0.999549, 0.793082, 0.00127],
-				[588, 1.009089, 0.781192, 0.001205],
-				[589, 1.018006, 0.769155, 0.001147],
-				[590, 1.0263, 0.757, 0.0011],
-				[591, 1.033983, 0.744754, 0.001069],
-				[592, 1.040986, 0.732422, 0.001049],
-				[593, 1.047188, 0.720004, 0.001036],
-				[594, 1.052467, 0.707497, 0.001212],
-				[595, 1.0567, 0.6949, 0.001],
-				[596, 1.059794, 0.682219, 0.000969],
-				[597, 1.061799, 0.669472, 0.00093],
-				[598, 1.062807, 0.656674, 0.000887],
-				[599, 1.06291, 0.643845, 0.000843],
-				[600, 1.0622, 0.631, 0.0008],
-				[601, 1.060735, 0.618156, 0.000761],
-				[602, 1.058444, 0.605314, 0.000733],
-				[603, 1.055224, 0.592476, 0.000686],
-				[604, 1.050977, 0.579638, 0.000645],
-				[605, 1.0456, 0.5668, 0.0006],
-				[606, 1.039037, 0.553961, 0.000548],
-				[607, 1.031361, 0.541137, 0.000492],
-				[608, 1.022666, 0.528353, 0.000435],
-				[609, 1.013048, 0.515632, 0.000383],
-				[610, 1.0026, 0.503, 0.00034],
-				[611, 0.991368, 0.490469, 0.000307],
-				[612, 0.979331, 0.47803, 0.000283],
-				[613, 0.966492, 0.465678, 0.000265],
-				[614, 0.952848, 0.453403, 0.000252],
-				[615, 0.9384, 0.4412, 0.00024],
-				[616, 0.923194, 0.42908, 0.00023],
-				[617, 0.907244, 0.417036, 0.000221],
-				[618, 0.890502, 0.405032, 0.000212],
-				[619, 0.87292, 0.393032, 0.000202],
-				[620, 0.85445, 0.381, 0.00019],
-				[621, 0.835084, 0.368918, 0.000174],
-				[622, 0.814946, 0.356827, 0.000156],
-				[623, 0.794186, 0.344777, 0.000136],
-				[624, 0.772954, 0.332818, 0.000117],
-				[625, 0.7514, 0.321, 0.0001],
-				[626, 0.729584, 0.309338, 0.000086],
-				[627, 0.707589, 0.29785, 0.000075],
-				[628, 0.685602, 0.286594, 0.000065],
-				[629, 0.66381, 0.275625, 0.000057],
-				[630, 0.6424, 0.265, 0.00005],
-				[631, 0.621515, 0.254763, 0.000044],
-				[632, 0.601114, 0.24489, 0.000039],
-				[633, 0.581105, 0.235334, 0.000036],
-				[634, 0.561398, 0.226053, 0.000033],
-				[635, 0.5419, 0.217, 0.00003],
-				[636, 0.5226, 0.208162, 0.000028],
-				[637, 0.503546, 0.199549, 0.000026],
-				[638, 0.484744, 0.191155, 0.000024],
-				[639, 0.466194, 0.182974, 0.000022],
-				[640, 0.4479, 0.175, 0.00002],
-				[641, 0.429861, 0.167224, 0.000018],
-				[642, 0.412098, 0.159646, 0.000016],
-				[643, 0.394644, 0.152278, 0.000014],
-				[644, 0.377533, 0.145126, 0.000012],
-				[645, 0.3608, 0.1382, 0.00001],
-				[646, 0.344456, 0.1315, 0.000008],
-				[647, 0.328517, 0.125025, 0.000005],
-				[648, 0.313019, 0.118779, 0.000003],
-				[649, 0.298001, 0.112769, 0.000001],
-				[650, 0.2835, 0.107, 0.0],
-				[651, 0.269545, 0.101476, 0.0],
-				[652, 0.256118, 0.096189, 0.0],
-				[653, 0.24319, 0.091123, 0.0],
-				[654, 0.230727, 0.086265, 0.0],
-				[655, 0.2187, 0.0816, 0.0],
-				[656, 0.207097, 0.077121, 0.0],
-				[657, 0.195923, 0.073826, 0.0],
-				[658, 0.185171, 0.06871, 0.0],
-				[659, 0.174832, 0.06477, 0.0],
-				[660, 0.1649, 0.061, 0.0],
-				[661, 0.155367, 0.057396, 0.0],
-				[662, 0.14623, 0.053955, 0.0],
-				[663, 0.13749, 0.050674, 0.0],
-				[664, 0.129147, 0.04755, 0.0],
-				[665, 0.1212, 0.04458, 0.0],
-				[666, 0.11364, 0.041759, 0.0],
-				[667, 0.106465, 0.039085, 0.0],
-				[668, 0.099333, 0.036564, 0.0],
-				[669, 0.093331, 0.0342, 0.0],
-				[670, 0.0874, 0.032, 0.0],
-				[671, 0.081901, 0.029963, 0.0],
-				[672, 0.076804, 0.028077, 0.0],
-				[673, 0.072077, 0.026329, 0.0],
-				[674, 0.067687, 0.024708, 0.0],
-				[675, 0.0636, 0.0232, 0.0],
-				[676, 0.059807, 0.021801, 0.0],
-				[677, 0.056282, 0.020501, 0.0],
-				[678, 0.052971, 0.019281, 0.0],
-				[679, 0.049819, 0.018121, 0.0],
-				[680, 0.04677, 0.017, 0.0],
-				[681, 0.043784, 0.015904, 0.0],
-				[682, 0.040875, 0.014837, 0.0],
-				[683, 0.038073, 0.013811, 0.0],
-				[684, 0.035405, 0.012835, 0.0],
-				[685, 0.0329, 0.01192, 0.0],
-				[686, 0.030564, 0.011068, 0.0],
-				[687, 0.028381, 0.010273, 0.0],
-				[688, 0.026345, 0.009533, 0.0],
-				[689, 0.024453, 0.008846, 0.0],
-				[690, 0.0227, 0.00821, 0.0],
-				[691, 0.021084, 0.007624, 0.0],
-				[692, 0.0196, 0.007085, 0.0],
-				[693, 0.018237, 0.006591, 0.0],
-				[694, 0.016987, 0.006138, 0.0],
-				[695, 0.01584, 0.005723, 0.0],
-				[696, 0.014791, 0.005343, 0.0],
-				[697, 0.013831, 0.004996, 0.0],
-				[698, 0.012949, 0.004676, 0.0],
-				[699, 0.012129, 0.00438, 0.0],
-				[700, 0.011359, 0.004102, 0.0],
-				[701, 0.010629, 0.003838, 0.0],
-				[702, 0.009939, 0.003589, 0.0],
-				[703, 0.009288, 0.003354, 0.0],
-				[704, 0.008679, 0.003134, 0.0],
-				[705, 0.008111, 0.002929, 0.0],
-				[706, 0.007582, 0.002738, 0.0],
-				[707, 0.007089, 0.00256, 0.0],
-				[708, 0.006627, 0.002393, 0.0],
-				[709, 0.006195, 0.002237, 0.0],
-				[710, 0.00579, 0.002091, 0.0],
-				[711, 0.00541, 0.001954, 0.0],
-				[712, 0.005053, 0.001825, 0.0],
-				[713, 0.004718, 0.001704, 0.0],
-				[714, 0.004404, 0.00159, 0.0],
-				[715, 0.004109, 0.001484, 0.0],
-				[716, 0.003834, 0.001384, 0.0],
-				[717, 0.003576, 0.001291, 0.0],
-				[718, 0.003334, 0.001204, 0.0],
-				[719, 0.003109, 0.001123, 0.0],
-				[720, 0.002899, 0.001047, 0.0],
-				[721, 0.002704, 0.000977, 0.0],
-				[722, 0.002523, 0.000911, 0.0],
-				[723, 0.002354, 0.00085, 0.0],
-				[724, 0.002197, 0.000793, 0.0],
-				[725, 0.002049, 0.00074, 0.0],
-				[726, 0.001911, 0.00069, 0.0],
-				[727, 0.001781, 0.000643, 0.0],
-				[728, 0.00166, 0.000599, 0.0],
-				[729, 0.001546, 0.000558, 0.0],
-				[730, 0.00144, 0.00052, 0.0],
-			];
-			const Msrgb = [
-				[3.2404542, -1.5371385, -0.4985314],
-				[-0.969266, 1.8760108, 0.041556],
-				[0.0556434, -0.2040259, 1.0572252],
-			];
-
-			/* document.getElementById('add-dot-form').addEventListener('submit', function(event) {
-		event.preventDefault();
-
-		const wavelength = Number(document.getElementById('wavelength').value);
-		const id = document.getElementById('id').value;
-
-		// Calculate the left position based on the wavelength
-		const minWavelength = 380;
-		const maxWavelength = 750;
-		const leftPosition = ((wavelength - (minWavelength)) / (maxWavelength - (minWavelength))) * 100;
-
-		// Create a new dot element
-		const newDot = document.createElement('div');
-		newDot.className = 'spectrum-dot';
-		newDot.style.left = leftPosition + '%';
-		newDot.innerHTML = `<span class="spectrum-tip">${id}<br>(${wavelength}nm)</span>`;
-
-		// Add the new dot to the spectrum
-		document.getElementById('spectrum').appendChild(newDot);
-
-		// Add the new dot to the list
-		const newListItem = document.createElement('li');
-		newListItem.textContent = `ID: ${id}, Wavelength: ${wavelength} nm`;
-		document.getElementById('dots-list').appendChild(newListItem);
-
-		Delta2RGB(wavelength);
-
-		document.getElementById('test').innerHTML = `Wavelength: ${wavelength}, ID: ${id}, Left: ${leftPosition}%`;
-	}); */
-
 			document.getElementById('add-dot-form-new').addEventListener('submit', function (event) {
 				event.preventDefault();
 
@@ -792,80 +323,38 @@
 				const newDot = document.createElement('div');
 				newDot.className = 'spectrum-dot';
 				newDot.style.left = leftPosition + '%';
-				newDot.innerHTML = `<span class="spectrum-tip">${cid}<br>(${minWavelength}-${maxWavelength}nm)</span>`;
-				newDot.setAttribute('onclick', `SPD2RGB(${wavelength}, ${maxWavelength - minWavelength})`);
+				if (minWavelength !== maxWavelength) {
+					newDot.innerHTML = `<span class="spectrum-tip">${cid}<br>(${minWavelength}-${maxWavelength}nm)</span>`;
+					newDot.setAttribute('onclick', `SPD2RGB(${wavelength}, ${maxWavelength - minWavelength})`);
+					SPD2RGB(wavelength, maxWavelength - minWavelength);
+				} else {
+					console.log(wavelength);
+					newDot.innerHTML = `<span class="spectrum-tip">${cid}<br>(${wavelength}nm)</span>`;
+					newDot.setAttribute('onclick', `Delta2RGB(${wavelength})`);
+					Delta2RGB(wavelength);
+				}
 
 				// Add the new dot to the spectrum
 				document.getElementById('spectrum').appendChild(newDot);
 
-				// Add the new dot to the list
-				const newListItem = document.createElement('li');
-				newListItem.textContent = `cID: ${cid}, Wavelength: ${wavelength} nm`;
+				const row = document.createElement('tr');
 				const deleteButton = document.createElement('button');
-				deleteButton.textContent = 'Delete';
+				deleteButton.className = 'delete';
+				deleteButton.innerHTML = '删除';
 				deleteButton.onclick = function () {
-					newListItem.remove();
+					row.remove();
 					newDot.remove();
 				};
-				newListItem.appendChild(deleteButton);
-				document.getElementById('dots-list').appendChild(newListItem);
+				row.innerHTML = `
+					<td>${cid}</td>
+					<td>${wavelength} nm${minWavelength !== maxWavelength ? ` (${minWavelength}-${maxWavelength} nm)` : ''}</td>
+				`;
+				row.appendChild(document.createElement('td')).appendChild(deleteButton);
 
-				SPD2RGB(wavelength, maxWavelength - minWavelength);
+				document.getElementById('dots-list').appendChild(row);
 
 				document.getElementById('test').innerHTML = `Wavelength: ${wavelength}, ID: ${cid}, Left: ${leftPosition}%`;
 			});
-
-			function Delta2RGB(wavelength) {
-				const xyzIndex = wavelength - 380;
-				let XYZ = tristimulus[xyzIndex].slice(1);
-				let XYZMax = math.max(...XYZ);
-				XYZ.forEach((value, index) => {
-					XYZ[index] = value / XYZMax;
-				});
-				let RGB = math.multiply(Msrgb, XYZ);
-				RGB = RGB.map((value) => {
-					if (value <= 0.0031308) {
-						return 12.92 * value;
-					} else {
-						return 1.055 * math.pow(value, 1 / 2.4) - 0.055;
-					}
-				});
-
-				console.log(RGB);
-				document.getElementById('rgb-block').style.background = `rgb(${RGB[0] * 255}, ${RGB[1] * 255}, ${RGB[2] * 255})`;
-			}
-
-			function SPD2RGB(wavelength, FWHM) {
-				let sigma = FWHM / 2.355;
-				let c = 1 / (sigma * math.sqrt(2 * math.pi));
-				let x = math.range(380, 750, 1).toArray();
-				let P = [];
-				x.forEach((value) => {
-					P.push(c * math.exp(-math.pow(value - wavelength, 2) / (2 * math.pow(sigma, 2))));
-				});
-				let T = [];
-				tristimulus.forEach((value) => {
-					T.push(value.slice(1));
-				});
-				let XYZ = [];
-				T.forEach((value, index) => {
-					XYZ.push(math.multiply(value, P[index]));
-				});
-				let XYZSum = math.sum(XYZ, 0);
-				let XYZMax = math.max(...XYZSum);
-				XYZSum.forEach((value, index) => {
-					XYZSum[index] = value / XYZMax;
-				});
-				let RGB = math.multiply(Msrgb, XYZSum);
-				RGB = RGB.map((value) => {
-					if (value <= 0.0031308) {
-						return 12.92 * value;
-					} else {
-						return 1.055 * math.pow(value, 1 / 2.4) - 0.055;
-					}
-				});
-				document.getElementById('rgb-block').style.background = `rgb(${RGB[0] * 255}, ${RGB[1] * 255}, ${RGB[2] * 255})`;
-			}
 		</script>
 	</body>
 </html>
