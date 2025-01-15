@@ -238,70 +238,78 @@
 				eda.lib_Device.search(name, "0819f05c4eef4c71ace90d822a990e87", deviceClass).then((data) => {
 					console.log(data);
 				}) */
+				``;
+				eda.sys_Message.showToastMessage('正在搜索，耗时可能较久...', 'info', 5);
 
-				eda.sys_ToastMessage.showMessage('正在搜索，耗时可能较久...', 'info', 5);
+				eda.sys_ClientUrl
+					.request(
+						host + '/api/devices/search',
+						'POST',
+						`uid=0819f05c4eef4c71ace90d822a990e87&pageSize=500&page=1&wd=${name}&withSymbolPackage=on&path=0819f05c4eef4c71ace90d822a990e87`,
+						{
+							headers: {
+								'accept': 'application/json, text/javascript, */*; q=0.01',
+								'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+								'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126"',
+								'sec-ch-ua-mobile': '?0',
+								'sec-ch-ua-platform': '"Windows"',
+								'referrer': 'https://client/editor',
+								'referrerPolicy': 'strict-origin-when-cross-origin',
+							},
+						},
+						(response) => {
+							response
+								.json()
+								.then((data) => {
+									const list = data.result.lists.lcsc;
+									const tableBody = document.getElementById('lcsz-table-body');
+									tableBody.innerHTML = '';
+									list.forEach((item) => {
+										if (item.tags.child_tag.uuid === '957b3170ddc9408795c58c7566892d5b') {
+											const row = document.createElement('tr');
+											row.innerHTML = `
+<td>${item.attributes['Supplier Part']}</td>
+<td>${item.attributes['Manufacturer Part']}</td>
+<td>${item.attributes['Supplier Footprint']}</td>
+<td>${item.attributes['Emitted Color']}</td>
+<td>${item.attributes['Dominant Wavelength'] ? item.attributes['Dominant Wavelength'] : '-'}</td>
+`;
+											row.addEventListener('dblclick', function () {
+												// 如果能被match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/)匹配到，则说明是各范围，用于自动填充
+												let minWavelength, maxWavelength;
+												const dominantWavelength = item.attributes['Dominant Wavelength'];
+												if (dominantWavelength && dominantWavelength.match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/)) {
+													let matches = dominantWavelength.match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/);
+													minWavelength = parseInt(matches[1]);
+													maxWavelength = parseInt(matches[2]);
+												} else if (dominantWavelength && dominantWavelength.match(/(\d+\.?\d+)nm/)) {
+													let matches = dominantWavelength.match(/(\d+\.?\d+)nm/);
+													minWavelength = parseInt(matches[1]);
+													maxWavelength = parseInt(matches[1]);
+												} else {
+													eda.sys_ToastMessage.showMessage('无法识别的波长', 'error', 5);
+													return;
+												}
 
-				fetch(host + '/api/devices/search', {
-					'headers': {
-						'accept': 'application/json, text/javascript, */*; q=0.01',
-						'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-						'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126"',
-						'sec-ch-ua-mobile': '?0',
-						'sec-ch-ua-platform': '"Windows"',
-					},
-					'referrer': 'https://client/editor',
-					'referrerPolicy': 'strict-origin-when-cross-origin',
-					'body': `uid=0819f05c4eef4c71ace90d822a990e87&pageSize=500&page=1&wd=${name}&withSymbolPackage=on&path=0819f05c4eef4c71ace90d822a990e87`,
-					'method': 'POST',
-					'mode': 'cors',
-					'credentials': 'omit',
-				})
-					.then((response) => response.json())
-					.then((data) => {
-						const list = data.result.lists.lcsc;
-						const tableBody = document.getElementById('lcsz-table-body');
-						tableBody.innerHTML = '';
-						list.forEach((item) => {
-							if (item.tags.child_tag.uuid === '957b3170ddc9408795c58c7566892d5b') {
-								const row = document.createElement('tr');
-								row.innerHTML = `
-        				<td>${item.attributes['Supplier Part']}</td>
-        				<td>${item.attributes['Manufacturer Part']}</td>
-        				<td>${item.attributes['Supplier Footprint']}</td>
-        				<td>${item.attributes['Emitted Color']}</td>
-        				<td>${item.attributes['Dominant Wavelength'] ? item.attributes['Dominant Wavelength'] : '-'}</td>
-      				`;
-								row.addEventListener('dblclick', function () {
-									// 如果能被match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/)匹配到，则说明是各范围，用于自动填充
-									let minWavelength, maxWavelength;
-									const dominantWavelength = item.attributes['Dominant Wavelength'];
-									if (dominantWavelength && dominantWavelength.match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/)) {
-										let matches = dominantWavelength.match(/(\d+\.?\d+)nm~(\d+\.?\d+)nm/);
-										minWavelength = parseInt(matches[1]);
-										maxWavelength = parseInt(matches[2]);
-									} else if (dominantWavelength && dominantWavelength.match(/(\d+\.?\d+)nm/)) {
-										let matches = dominantWavelength.match(/(\d+\.?\d+)nm/);
-										minWavelength = parseInt(matches[1]);
-										maxWavelength = parseInt(matches[1]);
-									} else {
-										eda.sys_ToastMessage.showMessage('无法识别的波长', 'error', 5);
-										return;
-									}
+												const cid = item.attributes['Supplier Part'];
+												document.getElementById('minWavelength').value = minWavelength;
+												document.getElementById('maxWavelength').value = maxWavelength;
+												document.getElementById('cid').value = cid;
 
-									const cid = item.attributes['Supplier Part'];
-									document.getElementById('minWavelength').value = minWavelength;
-									document.getElementById('maxWavelength').value = maxWavelength;
-									document.getElementById('cid').value = cid;
-
-									eda.sys_ToastMessage.showMessage('已自动填充', 'success', 5);
+												eda.sys_Message.showToastMessage('已自动填充', 'success', 5);
+											});
+											tableBody.appendChild(row);
+										}
+									});
+								})
+								.then(() => {
+									eda.sys_Message.showToastMessage('搜索完成，双击搜索结果自动填充', 'success', 5);
 								});
-								tableBody.appendChild(row);
-							}
-						});
-					})
-					.then(() => {
-						// html 里用不了枚举常量
-						eda.sys_ToastMessage.showMessage('搜索完成，双击搜索结果自动填充', 'success', 5);
+						},
+					)
+					.catch((error) => {
+						eda.sys_Message.showToastMessage(error.toString(), 'error', 5);
+						console.error(error);
 					});
 			});
 		</script>

@@ -1,6 +1,6 @@
 {
 	"name": "light",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "LED助手",
 	"author": "Mr_Fang <klxf@vip.qq.com>",
 	"license": "Apache-2.0",
@@ -14,7 +14,7 @@
 		"build": "npm run compile && ts-node ./build/packaged.ts"
 	},
 	"devDependencies": {
-		"@jlceda/pro-api-types": "^0.1.109",
+		"@jlceda/pro-api-types": "^0.1.112",
 		"@microsoft/tsdoc": "^0.15.0",
 		"@trivago/prettier-plugin-sort-imports": "^4.3.0",
 		"@types/fs-extra": "^11.0.4",
