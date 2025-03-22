@@ -20,12 +20,8 @@ export function about(): void {
 }
 
 export function openIframe(): void {
-	if (eda.sys_Environment.isWeb() || !eda.sys_Environment.isJLCEDAProEdition()) {
-		eda.sys_ToastMessage.showMessage('本拓展仅支持嘉立创 EDA 专业版客户端', ESYS_ToastMessageType.WARNING);
-		return;
-	}
-	if (eda.sys_Environment.isOfflineMode() || eda.sys_Environment.isProPrivateEdition()) {
-		eda.sys_ToastMessage.showMessage('本拓展不支持离线模式或私有部署版本', ESYS_ToastMessageType.WARNING);
+	if (!eda.sys_Environment.isJLCEDAProEdition()) {
+		eda.sys_ToastMessage.showMessage('本拓展仅支持嘉立创 EDA 专业版', ESYS_ToastMessageType.WARNING);
 		return;
 	}
 	eda.sys_IFrame.openIFrame('/iframe/index.html', 500, 300);
