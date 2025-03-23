@@ -17,24 +17,21 @@
 2. 在首页、原理图、PCB页面中，点击顶部菜单的 `LED助手`，即可打开本拓展
 
 3. 使用很简单 —— 输入主波长，添加一个标签，点击按钮即可自动计算主波长在 sRGB 色彩空间内的颜色
-   
-   ![img1](https://github.com/user-attachments/assets/1d7e880a-a2d0-4c50-b235-19a66ab264b6)
 
+    ![img1](https://github.com/user-attachments/assets/1d7e880a-a2d0-4c50-b235-19a66ab264b6)
 
 4. 允许通过立创商城搜索 LED，双击搜索结果可以将主波长、CID 自动填入表单
-   
-   ![img2](https://github.com/user-attachments/assets/5864119a-c800-41c6-bafe-aad43b7b1128)
 
+    ![img2](https://github.com/user-attachments/assets/5864119a-c800-41c6-bafe-aad43b7b1128)
 
 5. 点击光谱上的标记点，即可再次查看对应的颜色；点击列表中的删除按钮移除对应项目
 
-   ![img3](https://github.com/user-attachments/assets/96060eab-21f6-42d4-919c-7f6c8e9389f6)
-
+    ![img3](https://github.com/user-attachments/assets/96060eab-21f6-42d4-919c-7f6c8e9389f6)
 
 > [!IMPORTANT]
 >
 > LED 的实际色彩受其实际电流、环境光影响，本拓展所展示的色彩仅为理论数值
-> 
+>
 > 理论基础：https://fang.blog.miri.site/archives/1014/
 
 ## 开源许可
