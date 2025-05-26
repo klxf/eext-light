@@ -13,18 +13,18 @@ jobs:
 
       - name: 安装 Node.js
         uses: actions/setup-node@v4
-        
+
       - name: 初始化环境
         run: |
           npm install
-      
+
       - name: 构建
         run: |
           npm run build
-        
+
       - name: 上传工件
         uses: actions/upload-artifact@v4
         with:
           name: eext-light
           path: |
-            ./build/dist/light_*.eext
+            ./build/dist/eext-led-light-helper_*.eext
