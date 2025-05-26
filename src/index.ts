@@ -20,9 +20,5 @@ export function about(): void {
 }
 
 export function openIframe(): void {
-	if (!eda.sys_Environment.isJLCEDAProEdition()) {
-		eda.sys_ToastMessage.showMessage('本拓展仅支持嘉立创 EDA 专业版', ESYS_ToastMessageType.WARNING);
-		return;
-	}
 	eda.sys_IFrame.openIFrame('/iframe/index.html', 500, 300);
 }
